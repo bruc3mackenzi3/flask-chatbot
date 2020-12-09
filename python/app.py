@@ -15,7 +15,7 @@ def messages_route():
     Return all the messages
     """
     messages = Messages.get_filled_messages()
-    return jsonify(list(messages)), 200
+    return jsonify(messages), 200
 
 
 @app.route("/search", methods=["POST"])
