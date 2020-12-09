@@ -1,6 +1,6 @@
 import re
 import sqlite3
-from typing import List
+from typing import List, Union
 
 import config
 
@@ -47,5 +47,50 @@ class Messages:
 
     @staticmethod
     def _substitute_value(token: str) -> str:
+        """Given a token from a parsed message parse further to extract the
+        variable ID and fallback value.  Returns the appropriate value to be
+        replaced.
+
+        Args:
+            token (str):
+                The token from which variable ID and fallback value are
+                extracted.
+
+                The token passed should take the following form:
+                    <variable ID>|<fallback value>
+
+                E.g.:
+                    asdf|something
+
+        Returns:
+            str: The value associated with the ID if it exists, otherwise
+                returns the fallback value.
+        """
+
+        # TODO: Fix warning with regex backslash
         variable_id, _, fallback_value = re.split('(\|)', token)
-        return fallback_value
+        return Messages._get_state_value(variable_id, fallback_value)
+
+    @staticmethod
+    def _get_state_value(id: str, fallback=None) -> Union[str,None]:
+        """
+        Given a variable  ID, attempt to retrieve the associated value from the
+        database's state table.
+
+        Args:
+            id (str): The ID of an associated value
+            fallback (str): The fallback value in case the variable is not
+                found
+
+        Returns:
+            str: The value associated with the ID if it exists, otherwise
+                returns the fallback value.
+        """
+
+        with sqlite3.connect(config.DB_PATH) as conn:
+            cur = conn.execute(f"SELECT value FROM state WHERE id == '{id}'")
+            result = cur.fetchone()
+            if result:
+                return result[0]
+            else:
+                return fallback
