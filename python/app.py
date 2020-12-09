@@ -1,26 +1,21 @@
-import pathlib
 from pprint import pprint
 import sqlite3
 
 from flask import Flask, request, jsonify
 
+import config
+from messages import Messages
+
 
 app = Flask(__name__)
-
-# Using pathlib get absolute path of DB file
-# This removes the constraint of running from a specific directory
-DBPATH = str(pathlib.Path(__file__).parent.absolute()) + "/../database.db"
 
 @app.route("/messages", methods=["GET"])
 def messages_route():
     """
     Return all the messages
     """
-
-    with sqlite3.connect(DBPATH) as conn:
-        messages_res = conn.execute("select body from messages")
-        messages = [m[0] for m in messages_res]
-        return jsonify(list(messages)), 200
+    messages = Messages.get_filled_messages()
+    return jsonify(list(messages)), 200
 
 
 @app.route("/search", methods=["POST"])
@@ -33,7 +28,7 @@ def search_route():
     curl -d '{"query":"Star Trek"}' -H "Content-Type: application/json" -X POST http://localhost:5000/search
     """
 
-    with sqlite3.connect(DBPATH) as conn:
+    with sqlite3.connect(config.DB_PATH) as conn:
         query = request.get_json().get("query")
         res = conn.execute(
             "select id, title from answers where title like ? ", [f"%{query}%"],
