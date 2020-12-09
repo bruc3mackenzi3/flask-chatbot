@@ -3,10 +3,14 @@ import sqlite3
 import json
 import re # regular expressions
 from pprint import pprint
+import pathlib
 
 
 app = Flask(__name__)
-DBPATH = "../database.db"
+
+# Using pathlib get absolute path of DB file
+# This removes the constraint of running from a specific directory
+DBPATH = str(pathlib.Path(__file__).parent.absolute()) + "/../database.db"
 
 @app.route("/messages", methods=["GET"])
 def messages_route():
