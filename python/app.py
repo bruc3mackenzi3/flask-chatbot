@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify
-import sqlite3
-import json
-import re # regular expressions
-from pprint import pprint
 import pathlib
+from pprint import pprint
+import sqlite3
+
+from flask import Flask, request, jsonify
 
 
 app = Flask(__name__)
