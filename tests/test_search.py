@@ -224,6 +224,23 @@ class TestSearch(unittest.TestCase):
             r1.json(), r2.json(), "People have the darndest data!",
         )
 
+    def test_multiple_matches(self):
+        r = search("Maybe")
+        self.assertEqual(
+            r.json(),
+            [
+                {
+                    "id": 4,
+                    "title": "Maybe Riker"
+                },
+                {
+                    "id": 5,
+                    "title": "Maybe Data with Beard"
+                }
+            ],
+            "Must be able to return multiple matches"
+        )
+
 
 
 if __name__ == "__main__":

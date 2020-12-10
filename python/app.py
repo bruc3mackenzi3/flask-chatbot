@@ -31,7 +31,8 @@ def search_route():
     with sqlite3.connect(config.DB_PATH) as conn:
         query = request.get_json().get("query")
         res = conn.execute(
-            "select id, title from answers where title like ? ", [f"%{query}%"],
+            "select id, title from answers where title like ? ",
+            [f"%{query}%"],
         )
         answers = [{"id": r[0], "title": r[1]} for r in res]
         print(query, "--> ")
