@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 
 import config
 from messages import Messages
+from search import Search
 
 
 app = Flask(__name__)
@@ -27,17 +28,11 @@ def search_route():
 
     curl -d '{"query":"Star Trek"}' -H "Content-Type: application/json" -X POST http://localhost:5000/search
     """
-
-    with sqlite3.connect(config.DB_PATH) as conn:
-        query = request.get_json().get("query")
-        res = conn.execute(
-            "select id, title from answers where title like ? ",
-            [f"%{query}%"],
-        )
-        answers = [{"id": r[0], "title": r[1]} for r in res]
-        print(query, "--> ")
-        pprint(answers)
-        return jsonify(answers), 200
+    query = request.get_json().get("query")
+    print(query, "--> ")
+    answers = Search.search_answers(query)
+    pprint(answers)
+    return jsonify(answers), 200
 
 
 if __name__ == "__main__":
