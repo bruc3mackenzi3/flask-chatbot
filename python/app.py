@@ -1,9 +1,7 @@
 from pprint import pprint
-import sqlite3
 
 from flask import Flask, request, jsonify
 
-import config
 from messages import Messages
 from search import Search
 
