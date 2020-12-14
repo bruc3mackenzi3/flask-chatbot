@@ -26,9 +26,21 @@ class Search:
         Returns: A list of results each containing the deserialized JSON
             content as a dictionary.
         """
+        # First search answers table for matches
+        query_terms = query.split()
+        answers = Search._search_answers(query_terms)
+
+        # Omit matched records and search in remaining blocks
+        ids = [a['id'] for a in answers]
+        answers.extend(Search._search_remaining_blocks(query_terms, ids))
+
+        return answers
+
+    @staticmethod
+    def _search_answers(query_terms: List[str]) -> List[Dict]:
         # Keyword search requires splitting query into words and generating
         # SQL where clause with dynamic number of expressions
-        where_clause, params = Search._build_substring_query(query)
+        where_clause, params = Search._build_substring_query(query_terms, 'title')
 
         with sqlite3.connect(config.DB_PATH) as conn:
             # Execute search on DB, retrieving data from answers and blocks
@@ -44,17 +56,29 @@ class Search:
             # Convert each search result into a dictionary, with content
             # containing a nested dictionary from the serialized JSON stored
             # in the DB.
-            answers = [
-                {"id": r[0], "title": r[1], "content": json.loads(r[2])} for r in res
+            return [
+                {"id": r[0], "title": r[1], "content": json.loads(r[2])}
+                for r in res
             ]
-            return answers
 
     @staticmethod
-    def _build_substring_query(query: str) -> Tuple[List, List]:
-        # Build parameter list by splitting query by whitespace into search terms
-        parameters = [f"%{token}%" for token in query.split()]
+    def _search_remaining_blocks(
+            query_terms: List[str],
+            omit_ids: List[str]
+    ) -> List[Dict]:
+
+        return []
+
+
+    @staticmethod
+    def _build_substring_query(
+            query_terms: List[str],
+            column: str
+    ) -> Tuple[List, List]:
+        # Build parameter list by mapping query terms into SQL wildcards
+        parameters = [f"%{term}%" for term in query_terms]
 
         # Build where clause by duplicating the condition by the number of search terms
-        where = " and ".join(["title LIKE ?"] * len(parameters))
+        where = " and ".join([f"{column} LIKE ?"] * len(parameters))
 
         return (where, parameters)

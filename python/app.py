@@ -8,6 +8,7 @@ from search import Search
 
 app = Flask(__name__)
 
+
 @app.route("/messages", methods=["GET"])
 def messages_route():
     """

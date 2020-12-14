@@ -10,7 +10,6 @@ class Messages:
     Represents message objects and interfaces to the messages and state DB
     tables
     """
-
     @staticmethod
     def get_filled_messages() -> List[str]:
         """
@@ -19,7 +18,6 @@ class Messages:
         Returns:
             list: The filled in messages
         """
-
         with sqlite3.connect(config.DB_PATH) as conn:
             messages_res = conn.execute("select body from messages")
             return [Messages._fill_message(m[0]) for m in messages_res]
@@ -36,7 +34,6 @@ class Messages:
         Returns:
             str: The processed message with values filled in
         """
-
         tokens = re.split('([{}])', message)
         i = 0
         while i < len(tokens):
@@ -70,7 +67,6 @@ class Messages:
             str: The value associated with the ID if it exists, otherwise
                 returns the fallback value.
         """
-
         variable_id, _, fallback_value = re.split(r'(\|)', token)
         return Messages._get_state_value(variable_id, fallback_value)
 
@@ -89,7 +85,6 @@ class Messages:
             str: The value associated with the ID if it exists, otherwise
                 returns the fallback value.
         """
-
         with sqlite3.connect(config.DB_PATH) as conn:
             cur = conn.execute(f"SELECT value FROM state WHERE id == '{id}'")
             result = cur.fetchone()
