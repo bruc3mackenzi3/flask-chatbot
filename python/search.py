@@ -11,7 +11,6 @@ class Search:
     @staticmethod
     def search_answers(query: str) -> List[Dict]:
         where_clause, params = Search._build_substring_query(query)
-        print(where_clause)
 
         with sqlite3.connect(config.DB_PATH) as conn:
             # Execute search on DB, retrieving data from answers and blocks

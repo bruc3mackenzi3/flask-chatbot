@@ -224,19 +224,21 @@ class TestSearch(unittest.TestCase):
             r1.json(), r2.json(), "People have the darndest data!",
         )
 
-    @unittest.skip("Assert data is incorrect")
     def test_multiple_matches(self):
         r = search("Maybe")
+        print(r.json())
         self.assertEqual(
             r.json(),
             [
                 {
                     "id": 4,
-                    "title": "Maybe Riker"
+                    "title": "Maybe Riker",
+                    "content": [{"body": [{"alt-text": "Riker with beard", "type": "image", "url": "https://ca.startrek.com/sites/default/files/styles/content_full/public/images/2019-07/18ead4c77c3f40dabf9735432ac9d97a.jpg"}], "chance": 0.5, "type": "maybe"}]
                 },
                 {
                     "id": 5,
-                    "title": "Maybe Data with Beard"
+                    "title": "Maybe Data with Beard",
+                    "content": [{"body": "Forbidden knowledge!", "type": "text"}, {"body": [{"type": "image", "url": "https://vignette.wikia.nocookie.net/memoryalpha/images/7/7e/Data_wearing_a_beard.jpg/revision/latest?cb=20121212024612&path-prefix=en"}], "chance": 0.3, "type": "maybe"}]
                 }
             ],
             "Must be able to return multiple matches"
