@@ -4,12 +4,30 @@ from typing import Dict, List, Tuple
 
 import config
 
+
 class Search:
     """
+    Represents search objects and interfaces to the answers and blocks DB
+    tables
     """
 
     @staticmethod
     def search_answers(query: str) -> List[Dict]:
+        """
+        Search for answers!  More specifically, search answers table for
+        matches to query.
+
+        The current search implementation tokenizes query and returns results
+        where ALL search terms are found SOMEWHERE in answers (or content).
+
+        Args:
+            query (str): The search string to match in answers
+
+        Returns: A list of results each containing the deserialized JSON
+            content as a dictionary.
+        """
+        # Keyword search requires splitting query into words and generating
+        # SQL where clause with dynamic number of expressions
         where_clause, params = Search._build_substring_query(query)
 
         with sqlite3.connect(config.DB_PATH) as conn:

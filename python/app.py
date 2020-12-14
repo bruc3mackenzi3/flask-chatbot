@@ -27,7 +27,7 @@ def search_route():
     curl -d '{"query":"Star Trek"}' -H "Content-Type: application/json" -X POST http://localhost:5000/search
     """
     query = request.get_json().get("query")
-    # Request validation; ensure non-empy query is passed
+    # Request validation - ensure query passed is non-empy
     if not query:
         return jsonify({"error": "Invalid request"}), 400
 

@@ -7,12 +7,14 @@ import config
 
 class Messages:
     """
-    Represents message objects and interfaces to the messages DB table
+    Represents message objects and interfaces to the messages and state DB
+    tables
     """
 
     @staticmethod
     def get_filled_messages() -> List[str]:
-        """Retrieve all messages from the database and fills in the variables.
+        """
+        Retrieve all messages from the database and fills in the variables.
 
         Returns:
             list: The filled in messages
@@ -20,11 +22,12 @@ class Messages:
 
         with sqlite3.connect(config.DB_PATH) as conn:
             messages_res = conn.execute("select body from messages")
-            return [Messages.fill_message(m[0]) for m in messages_res]
+            return [Messages._fill_message(m[0]) for m in messages_res]
 
     @staticmethod
-    def fill_message(message: str) -> str:
-        """Given a message retrieved from the messages table fill each variable
+    def _fill_message(message: str) -> str:
+        """
+        Given a message retrieved from the messages table fill each variable
         with the appropriate value.
 
         Args:
@@ -47,7 +50,8 @@ class Messages:
 
     @staticmethod
     def _substitute_value(token: str) -> str:
-        """Given a token from a parsed message parse further to extract the
+        """
+        Given a token from a parsed message parse further to extract the
         variable ID and fallback value.  Returns the appropriate value to be
         replaced.
 
@@ -67,14 +71,13 @@ class Messages:
                 returns the fallback value.
         """
 
-        # TODO: Fix warning with regex backslash
-        variable_id, _, fallback_value = re.split('(\|)', token)
+        variable_id, _, fallback_value = re.split(r'(\|)', token)
         return Messages._get_state_value(variable_id, fallback_value)
 
     @staticmethod
     def _get_state_value(id: str, fallback=None) -> Union[str,None]:
         """
-        Given a variable  ID, attempt to retrieve the associated value from the
+        Given a variable ID, attempt to retrieve the associated value from the
         database's state table.
 
         Args:

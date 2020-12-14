@@ -226,7 +226,6 @@ class TestSearch(unittest.TestCase):
 
     def test_multiple_matches(self):
         r = search("Maybe")
-        print(r.json())
         self.assertEqual(
             r.json(),
             [
