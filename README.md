@@ -1,3 +1,66 @@
+# Solution
+
+Python is chosen as the implementing language to the solution.
+
+
+## Run Instructions
+To run the program first create a virtual environment:
+```
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+Then to run the web server:
+```
+python3 python/app.py
+```
+
+Test the messages endpoint by running the following:
+```
+curl 'http://localhost:5000/messages'
+```
+
+And the search endpoint with the query "Star Trek":
+```
+curl -d '{"query":"Star Trek"}' -H "Content-Type: application/json" -X POST http://localhost:5000/search
+```
+
+## Solution Overview
+Code organization is top of mind here.  The program is broken down into appropriate modules, classes and methods.  `app.py` is kept light, containing logic related to the web server.  It translates input/output and calls backend services.  The `/messages` and `/search` methods are implemented in respective modules.  Common `util` and `config` modules are also there.
+
+Attention was paid to the coding style of the original program.  The style has been preserved throughout the rest of the code for consistency.  One example is the generous use of list comprehensions.
+
+### Making it Work
+A full working solution has been provided.  The messages feature is extended to fill in template messages.  Each message is parsed out and for each variable the state table is queried, with the result (or default value if none) filled in.
+
+The one exception is the failing unit test `TestSearch.test_expect_the_unexpected`.  This is explained further in the next section.
+
+### Making it Right
+The search feature required the following feature enhancements:
+
+- Respond with 400 on bad input
+- Include answer blocks in response
+- Search within the content block fields in addition to the title
+- Search behaviour matches ALL terms ANYWHERE in the text
+- Omit matches to content JSON keys and `type` field in search results
+
+Satisfying the final requirement means going beyond SQL queries.  In following the spirit of the question the solution works with the JSON data directly.  It deserializes content JSON (with a preliminary match - more on that [below](#Making-it-Fast)) and searches the dictionary.  A [recursive dictionary search algorithm](util.py#32) implements the unique search behaviour by only looking for substring matches in dictionary values.  This is to satisfy the test cases `test_type_should_be_excluded` and `test_field_names_should_be_excluded`.
+
+### Making it Fast
+An approach to speed which focused on the application code was taken.  Care was taken to pass appropriate data structures between functions, not repeat parsing of data, and so forth.
+
+DB information retieval relied on the existing DB schema rather than utilizing caching.  This is because of an assumption real-world data would consist of many more records than can be stored in memory (as is typically the case with databases).
+
+The `messages` endpoint requires one query to fetch the messages but an additional query for every variable filled in.  This falls back on the large dataset assumption, but a caching solution would simply load all variables into a dictionary in advance.  At query time variables would be accessible with negligible overhead.
+
+The `search` endpoint provides plenty of opportunity for optimizations.
+
+The solution deserializes JSON from `blocks.content` then serializes when returning to the client.  This is extremely costly in CPU terms and can cause scaling issues, especially in an interpreted language such as Python.  Because of the assumptions made under _Make it Right_ these operations were necessary.  A pursuit of speed would visit this and investigate ways to treat as raw string data, eliminating the CPU overhead.
+
+Significant effort went into reducing the total number of nested JSON/dictionary searches.  First, searches matched entirely in the answer are omitted from further searches.  Second, only records with matching search terms are returned in the SQL query.  In effect, the dictionary search is only performed to ensure the matches occur in JSON values and not keys or the `"type"` meta-field.
+
+Optimization is a tricky process that requires planning and care.  What's faster in one scenario may be slower in another.  Something as simple as changing match rates in data can drastically alter algorithm performance.  Considerations into prioritizing average case versus worse case must also be weighed.  Another consideration is the speed of processing a single request versus total throughput.  It has been said that _Premature optimization is the root of all evil_.
+
 # Hello World
 
 Welcome to the Ada Tech Hiring test! This test is designed to let you **prove** that you can program, whether you have relevant credentials or not.

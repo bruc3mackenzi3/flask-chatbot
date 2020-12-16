@@ -34,14 +34,14 @@ class Util:
             term: str,
             omit_keys: List=[]
     ) -> bool:
-    """
-    Recursive search algorithm to search nested dictionary values to contain
-    term.
+        """
+        Recursive search algorithm to search nested dictionary values to contain
+        term.
 
-    Note: term is matched with a case-insensitive substring match
+        Note: term is matched with a case-insensitive substring match
 
-    Returns: True if a match was found, False otherwise
-    """
+        Returns: True if a match was found, False otherwise
+        """
         if type(obj) == list:
             for item in obj:
                 if type(item) in [list, dict]:
